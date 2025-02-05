@@ -1,0 +1,137 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * CLI script to mass process records.
+ *
+ * @package   tool_orphanedrecords
+ * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
+ * @copyright Catalyst IT, 2025
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+use tool_orphanedrecords\orphanedrecords;
+
+define('CLI_SCRIPT', true);
+
+require(dirname(__FILE__, 5) . '/config.php');
+require_once("{$CFG->libdir}/clilib.php");
+
+list($options, $unrecognized) = cli_get_params(
+    [
+        'help' => false,
+        'action' => null,
+        'orphanid' => null,
+        'reason' => null,
+        'orphantable' => null,
+    ], [
+        'h' => 'help',
+        'a' => 'action',
+        'i' => 'orphanid',
+        'r' => 'reason',
+        't' => 'orphantable',
+    ]
+);
+
+if ($unrecognized) {
+    $unrecognized = implode("\n  ", $unrecognized);
+    cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
+}
+
+$helptext = <<<EOT
+CLI processing of orphaned records in the tool_orphaned records table.
+orphanid and/or reason, along with orphantable are used to identify the records to action.
+
+Options:
+ -h, --help             Print out this help
+ -a, --action           The action you would like to perform. Available actions are
+                        - ignore
+                        - delete
+                        - restore
+ -i, --orphanid         The id of the orphaned table record (i.e the course.id record).
+                        This must be used in conjunction with 'orphantable'
+ -r, --reason           The reason that the orphaned record was flagged. Available reasons are: 
+                        - 0 (Foreign key violations);
+                        - 1 (Missing module instance record i.e mdl_scorm record);
+                        - 2 (Missing course_module record );
+                        - 3 (Missing course record);
+                        - 4 (Missing section record);
+ -t, --orphantable      The orphan table i.e course, course_module. Note, we do not store the prefix.
+EOT;
+
+// Extract the options as their own variables.
+extract($options);
+
+// Display the help text.
+if ($help) {
+    cli_writeln($helptext);
+    exit(0);
+}
+
+if (!$orphantable) {
+    cli_error("Missing orphan table - required");
+}
+
+if (!$orphanid && !$reason) {
+    cli_error("Missing orphan id or reason - required");
+}
+
+if (!$action) {
+    cli_error("Missing action $action");
+}
+
+if (!in_array($action, ['delete', 'ignore', 'restore'])) {
+    cli_error("Invalid action $action");
+}
+
+$params = [];
+
+// Add the params based on CLI args.
+
+if ($orphanid) {
+    $params['orphanid'] = $orphanid;
+}
+
+if ($reason) {
+    $params['reason'] = $reason;
+}
+
+if ($orphantable) {
+    $params['orphantable'] = $orphantable;
+}
+
+$records = $DB->get_records(orphanedrecords::TABLE, $params);
+$recordcount = count($records);
+$i = 0;
+if (cli_input("Are you sure you would like to {$action} {$recordcount} record(s) (y/n)?", 'n', ['y', 'n']) == 'y') {
+    foreach ($records as $record) {
+        if (
+            $action == 'ignore' && $record->status == orphanedrecords::STATUS_IGNORED ||
+            $action == 'delete' && $record->status == orphanedrecords::STATUS_DELETED ||
+            $action == 'restore' && $record->status == orphanedrecords::STATUS_RESTORED
+        ) {
+            cli_writeln("Record {$record->id} already {$action}d.");
+            continue;
+        }
+        if ($action == 'restore' && $record->status != orphanedrecords::STATUS_DELETED) {
+            cli_writeln("Record {$record->id} cannot be restored.");
+            continue;
+        }
+        $i++;
+        orphanedrecords::process_record($record->id, $action);
+    }
+    cli_writeln("$i records out of a possible $recordcount actioned (see above for errors)");
+}

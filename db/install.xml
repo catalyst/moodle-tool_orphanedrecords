@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="admin/tool/orphanedrecords/db" VERSION="20220530" COMMENT="XMLDB file for Moodle tool/orphanedrecords"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
+    <TABLES>
+        <TABLE NAME="tool_orphanedrecords" COMMENT="Table to store rules">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="orphanid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of the target table."/>
+                <FIELD NAME="orphantable" TYPE="char" LENGTH="254" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the target table."/>
+                <FIELD NAME="orphanrow" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Serialized record of the original row."/>
+                <FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Status of the orphaned record."/>
+                <FIELD NAME="reason" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Reason for the orphaned record."/>
+                <FIELD NAME="reffields" TYPE="char" LENGTH="254" NOTNULL="false" SEQUENCE="false" COMMENT="Foreign key fields."/>
+                <FIELD NAME="reftable" TYPE="char" LENGTH="254" NOTNULL="false" SEQUENCE="false" COMMENT="Foreign key table."/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time stamp of when this row was created."/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Timestamp when this row was last modified."/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="status" UNIQUE="false" FIELDS="status" COMMENT="Index on status."/>
+                <INDEX NAME="orphanid" UNIQUE="false" FIELDS="orphanid" COMMENT="Index on orphanid."/>
+                <INDEX NAME="orphantable" UNIQUE="false" FIELDS="orphantable" COMMENT="Index on orphantable."/>
+                <INDEX NAME="reason" UNIQUE="false" FIELDS="reason" COMMENT="Index on reason."/>
+            </INDEXES>
+        </TABLE>
+    </TABLES>
+</XMLDB>
