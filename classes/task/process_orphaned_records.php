@@ -29,6 +29,9 @@ use core\task\scheduled_task;
 use stdClass;
 use tool_orphanedrecords\orphanedrecords;
 
+/**
+ * Record restored event.
+ */
 class process_orphaned_records extends scheduled_task {
 
     /**

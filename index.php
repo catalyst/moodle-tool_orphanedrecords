@@ -46,7 +46,13 @@ if ($action && $id) {
 }
 
 // Load the bulk actions form.
-$bulkactions = new bulk_actions(new moodle_url('/admin/tool/orphanedrecords/index.php'), [], 'post', '', ['id' => 'bulk-action-form']);
+$bulkactions = new bulk_actions(
+    new moodle_url('/admin/tool/orphanedrecords/index.php'),
+    [],
+    'post',
+    '',
+    ['id' => 'bulk-action-form']
+);
 $bulkactions->set_data(['returnurl' => $PAGE->url->out_as_local_url(false)]);
 
 // Bulk action submitted.

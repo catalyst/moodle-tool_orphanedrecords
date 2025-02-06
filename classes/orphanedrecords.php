@@ -34,19 +34,59 @@ use tool_orphanedrecords\event\record_ignored;
 use tool_orphanedrecords\event\record_restored;
 use xmldb_table;
 
+/**
+ * Orphaned records class.
+ */
 class orphanedrecords {
 
+    /**
+     * Pending status.
+     */
     const STATUS_PENDING = 0;
+
+    /**
+     * Ignored status.
+     */
     const STATUS_IGNORED = 1;
+
+    /**
+     * Deleted status.
+     */
     const STATUS_DELETED = 2;
+
+    /**
+     * Restored status.
+     */
     const STATUS_RESTORED = 3;
 
+    /**
+     * Reason: Foreign key violation.
+     */
     const REASON_FOREIGNKEY = 0;
+
+    /**
+     * Reason: Missing module instance record.
+     */
     const REASON_MISSINGINSTANCE = 1;
+
+    /**
+     * Reason: Missing course module record.
+     */
     const REASON_MISSINGMODULE = 2;
+
+    /**
+     * Reason: Missing course record.
+     */
     const REASON_MISSINGCOURSE = 3;
+
+    /**
+     * Reason: Missing course section record.
+     */
     const REASON_MISSINGSECTION = 4;
 
+    /**
+     * Orphaned records table.
+     */
     const TABLE = 'tool_orphanedrecords';
 
     /**
@@ -213,7 +253,7 @@ class orphanedrecords {
                         '' AS reffields,
                         '' AS reftable
                     FROM {grade_items} target
-                    LEFT JOIN {modules} m 
+                    LEFT JOIN {modules} m
                         ON target.itemmodule = m.name
                     LEFT JOIN {course_modules} cm
                         ON cm.instance = target.iteminstance
@@ -290,12 +330,12 @@ class orphanedrecords {
     /**
      * Get the textual reason for the orphaned record.
      *
-     * @param $reason
-     * @param $reffields
-     * @param $reftable
+     * @param int $reason
+     * @param string $reffields
+     * @param string $reftable
      * @return string
      */
-    public static function get_reason_text($reason, $reffields, $reftable): string {
+    public static function get_reason_text(int $reason, string $reffields, string $reftable): string {
         return match ($reason) {
             self::REASON_FOREIGNKEY => get_string(
                 'reason:' . self::REASON_FOREIGNKEY,
@@ -332,7 +372,7 @@ class orphanedrecords {
         global $DB;
 
         $record = $DB->get_record(self::TABLE, ['id' => $id]);
-        $eventparams = array('context' => context_system::instance());
+        $eventparams = ['context' => context_system::instance()];
         $event = null;
         switch ($action) {
             case 'ignore':

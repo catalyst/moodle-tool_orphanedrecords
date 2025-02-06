@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * TODO Add description
+ * Orphaned records entity record.
  *
- * @package   TODO Add package name
+ * @package   tool_orphanedrecords
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
  * @copyright Catalyst IT, 2025
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -36,6 +36,9 @@ use core_reportbuilder\local\report\filter;
 use lang_string;
 use tool_orphanedrecords\orphanedrecords;
 
+/**
+ * Orphaned records entity record.
+ */
 class orphaned_records extends base {
 
     /**
@@ -186,8 +189,6 @@ class orphaned_records extends base {
      * @return filter[]
      */
     protected function get_all_filters(): array {
-        global $DB;
-
         $tablealias = $this->get_table_alias('tool_orphanedrecords');
 
         // Orphan ID filter.

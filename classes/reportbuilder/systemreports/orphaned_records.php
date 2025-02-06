@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * TODO Add description
+ * Orphaned records system report.
  *
- * @package   TODO Add package name
+ * @package   tool_orphanedrecords
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
  * @copyright Catalyst IT, 2025
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -35,6 +35,9 @@ use pix_icon;
 use stdClass;
 use tool_orphanedrecords\orphanedrecords;
 
+/**
+ * Orphaned records system report class.
+ */
 class orphaned_records extends system_report {
 
     /**

@@ -14,29 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_orphanedrecords;
+
 /**
- * tool_orphanedrecords Unit Tests.
+ * Unit tests for tool_orphanedrecords\orphanedrecords class.
  *
+ * @covers    \tool_orphanedrecords\orphanedrecords
  * @package   tool_orphanedrecords
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
  * @copyright Catalyst IT, 2025
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace tool_orphanedrecords\tests;
-
-use advanced_testcase;
-use core_courseformat\external\update_course;
-use stdClass;
-use tool_orphanedrecords\orphanedrecords;
-use xmldb_table;
-
-/**
- * Unit tests for main class.
- *
- * @covers \tool_orphanedrecords\orphanedrecords
- */
-class orphanedrecords_test extends advanced_testcase {
+class orphanedrecords_test extends \advanced_testcase {
 
     public function test_save_new_orphaned_records() {
         global $DB;
@@ -51,7 +40,7 @@ class orphanedrecords_test extends advanced_testcase {
         $course2 = $this->getDataGenerator()->create_course(['numsections' => 1]);
         $scorm1 = $this->getDataGenerator()->create_module('scorm', ['course' => $course1]);
         $scorm2 = $this->getDataGenerator()->create_module('scorm', ['course' => $course1]);
-        $scorm3 = $this->getDataGenerator()->create_module('scorm', ['course' => $course2]);
+        $this->getDataGenerator()->create_module('scorm', ['course' => $course2]);
 
         $scormmodule = $DB->get_record('modules', ['name' => 'scorm']);
 
@@ -68,7 +57,7 @@ class orphanedrecords_test extends advanced_testcase {
 
         // Add a course and module to validate no issues.
         $course = $this->getDataGenerator()->create_course(['numsections' => 1]);
-        $scorm = $this->getDataGenerator()->create_module('scorm', ['course' => $course]);
+        $this->getDataGenerator()->create_module('scorm', ['course' => $course]);
 
         // Check the course record. Will not have any issues.
         orphanedrecords::save_new_orphaned_records($tables['course']);
@@ -126,5 +115,6 @@ class orphanedrecords_test extends advanced_testcase {
         orphanedrecords::save_new_orphaned_records($tables['grade_items']);
         $orphanedrecords = $DB->get_records(orphanedrecords::TABLE);
         $this->assertCount(10, $orphanedrecords);
+
     }
 }

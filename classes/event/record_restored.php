@@ -27,6 +27,9 @@ namespace tool_orphanedrecords\event;
 
 use core\event\base;
 
+/**
+ * Record restored event.
+ */
 class record_restored extends base {
 
     /**
@@ -56,5 +59,4 @@ class record_restored extends base {
             'tool_orphanedrecords'
         );
     }
-
 }

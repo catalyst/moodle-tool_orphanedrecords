@@ -27,6 +27,9 @@ namespace tool_orphanedrecords\event;
 
 use core\event\base;
 
+/**
+ * Record deleted event.
+ */
 class record_deleted extends base {
 
     /**
@@ -56,5 +59,4 @@ class record_deleted extends base {
             'tool_orphanedrecords'
         );
     }
-
 }

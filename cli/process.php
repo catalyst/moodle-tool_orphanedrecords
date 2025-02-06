@@ -63,7 +63,7 @@ Options:
                         - restore
  -i, --orphanid         The id of the orphaned table record (i.e the course.id record).
                         This must be used in conjunction with 'orphantable'
- -r, --reason           The reason that the orphaned record was flagged. Available reasons are: 
+ -r, --reason           The reason that the orphaned record was flagged. Available reasons are:
                         - 0 (Foreign key violations);
                         - 1 (Missing module instance record i.e mdl_scorm record);
                         - 2 (Missing course_module record );
@@ -73,7 +73,11 @@ Options:
 EOT;
 
 // Extract the options as their own variables.
-extract($options);
+$help = $options['help'];
+$action = $options['action'];
+$orphanid = $options['orphanid'];
+$orphantable = $options['orphantable'];
+$reason = $options['reason'];
 
 // Display the help text.
 if ($help) {

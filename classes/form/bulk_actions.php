@@ -29,6 +29,8 @@ use action_link;
 use moodle_url;
 use moodleform;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir.'/formslib.php');
 require_once($CFG->libdir.'/datalib.php');
 
@@ -114,7 +116,7 @@ class bulk_actions extends moodleform {
         foreach ($bulkactions as $category => $categoryactions) {
             $actions[$category] = array_map(fn($action) => $action->text, $categoryactions);
         }
-        $objs = array();
+        $objs = [];
         $objs[] = $selectel = $mform->createElement('selectgroups', 'action', get_string('userbulk', 'admin'), $actions);
         $selectel->setHiddenLabel(true);
         $mform->addElement('group', 'actionsgrp', get_string('withselectedusers'), $objs, ' ', false);
