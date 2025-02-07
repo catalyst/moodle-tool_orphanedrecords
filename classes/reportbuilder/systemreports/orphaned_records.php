@@ -157,12 +157,26 @@ class orphaned_records extends system_report {
                 '/admin/tool/orphanedrecords/index.php',
                 ['id' => ':id', 'action' => 'ignore']
             ),
-            new pix_icon('t/hide', '', 'core'),
+            new pix_icon('t/show', '', 'core'),
             [],
             false,
             new lang_string('form:ignore', 'tool_orphanedrecords')
         ))->add_callback(function(stdClass $row): bool {
             return $row->status == orphanedrecords::STATUS_PENDING;
+        }));
+
+        // Pending action.
+        $this->add_action((new action(
+            new moodle_url(
+                '/admin/tool/orphanedrecords/index.php',
+                ['id' => ':id', 'action' => 'pending']
+            ),
+            new pix_icon('t/show', '', 'core'),
+            [],
+            false,
+            new lang_string('form:pending', 'tool_orphanedrecords')
+        ))->add_callback(function(stdClass $row): bool {
+            return $row->status == orphanedrecords::STATUS_IGNORED;
         }));
 
     }

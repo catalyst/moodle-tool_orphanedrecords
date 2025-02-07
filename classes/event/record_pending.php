@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Record deleted event.
+ * Record set to pending event.
  *
  * @package   tool_orphanedrecords
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
@@ -31,7 +31,7 @@ use tool_orphanedrecords\orphanedrecords;
 /**
  * Record deleted event.
  */
-class record_deleted extends base {
+class record_pending extends base {
 
     /**
      * Init function.
@@ -48,7 +48,7 @@ class record_deleted extends base {
      * @return string
      */
     public static function get_name(): string {
-        return get_string('event:record_deleted', 'tool_orphanedrecords');
+        return get_string('event:record_pending', 'tool_orphanedrecords');
     }
 
     /**
@@ -58,7 +58,7 @@ class record_deleted extends base {
     public function get_description(): string {
         $data = $this->get_data();
         return get_string(
-            'event:record_deleted:description',
+            'event:record_pending:description',
             'tool_orphanedrecords',
             [
                 'id' => $data['objectid'],
@@ -73,5 +73,6 @@ class record_deleted extends base {
                 )
             ]
         );
+
     }
 }

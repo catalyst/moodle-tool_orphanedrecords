@@ -31,6 +31,7 @@ use moodle_recordset;
 use stdClass;
 use tool_orphanedrecords\event\record_deleted;
 use tool_orphanedrecords\event\record_ignored;
+use tool_orphanedrecords\event\record_pending;
 use tool_orphanedrecords\event\record_restored;
 use xmldb_table;
 
@@ -383,6 +384,10 @@ class orphanedrecords {
         ];
         $event = null;
         switch ($action) {
+            case 'pending':
+                $record->status = self::STATUS_PENDING;
+                $event = record_pending::create($eventparams);
+                break;
             case 'ignore':
                 $record->status = self::STATUS_IGNORED;
                 $event = record_ignored::create($eventparams);

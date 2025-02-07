@@ -56,9 +56,22 @@ class record_restored extends base {
      * @return string
      */
     public function get_description(): string {
+        $data = $this->get_data();
         return get_string(
             'event:record_restored:description',
-            'tool_orphanedrecords'
+            'tool_orphanedrecords',
+            [
+                'id' => $data['objectid'],
+                'userid' => $data['userid'],
+                'reason' => get_string(
+                    'reason:' . $data['other']['reason'],
+                    'tool_orphanedrecords',
+                    [
+                        'reffields' => $data['other']['reffields'],
+                        'reftable' => $data['other']['reftable'],
+                    ]
+                )
+            ]
         );
     }
 }
