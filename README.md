@@ -19,7 +19,7 @@ This is done through two main methods:
   is then joined on the `course_modules` table looking for where the `course_modules` record doesn't exist.
 * Check each `course_modules` table record for missing activity table records.
   This is the inverse of the above. We join the `course_modules` table onto each of the activity tables
-  (i.e `scorm`, `survey`) looking for where teh activity table record is missing.
+  (i.e `scorm`, `survey`) looking for where the activity table record is missing.
 * Check for `course_modules` records without matching `course` records.
 * Check for `course_modules` records without matching `course_sections` records.
 * Check for `course_sections` records without matching `course` records.

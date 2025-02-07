@@ -171,7 +171,7 @@ class orphaned_records extends system_report {
                 '/admin/tool/orphanedrecords/index.php',
                 ['id' => ':id', 'action' => 'pending']
             ),
-            new pix_icon('t/show', '', 'core'),
+            new pix_icon('t/hide', '', 'core'),
             [],
             false,
             new lang_string('form:pending', 'tool_orphanedrecords')
