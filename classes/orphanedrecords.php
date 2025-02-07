@@ -372,7 +372,15 @@ class orphanedrecords {
         global $DB;
 
         $record = $DB->get_record(self::TABLE, ['id' => $id]);
-        $eventparams = ['context' => context_system::instance()];
+        $eventparams = [
+            'context' => context_system::instance(),
+            'objectid' => $id,
+            'other' => [
+                'reason' => $record->reason,
+                'reffields' => $record->reffields,
+                'reftable' => $record->reftable,
+            ]
+        ];
         $event = null;
         switch ($action) {
             case 'ignore':

@@ -53,18 +53,14 @@ class bulk_actions extends moodleform {
     /**
      * Returns an array of action_link's of all bulk actions available for this user.
      *
-     * @param bool $flatlist whether to return a flat list (for easier searching) or a list with
-     *     option groups that can be used to build a select element
      * @return array of action_link objects
      */
-    public function get_actions(bool $flatlist = true): array {
+    public function get_actions(): array {
         if ($this->actions === null) {
             $this->actions = $this->build_actions();
             $this->hasbulkactions = !empty($this->actions);
         }
-        if ($flatlist) {
-            return array_reduce($this->actions, fn($carry, $item) => $carry + $item, []);
-        }
+
         return $this->actions;
     }
 
@@ -112,14 +108,25 @@ class bulk_actions extends moodleform {
         $mform->setType('recordids', PARAM_SEQUENCE);
 
         $actions = ['' => [0 => get_string('choose') . '...']];
-        $bulkactions = $this->get_actions(false);
+        $bulkactions = $this->get_actions();
         foreach ($bulkactions as $category => $categoryactions) {
             $actions[$category] = array_map(fn($action) => $action->text, $categoryactions);
         }
         $objs = [];
-        $objs[] = $selectel = $mform->createElement('selectgroups', 'action', get_string('userbulk', 'admin'), $actions);
+        $objs[] = $selectel = $mform->createElement(
+            'selectgroups',
+            'action',
+            get_string('form:recordbulk', 'tool_orphanedrecords'),
+            $actions
+        );
         $selectel->setHiddenLabel(true);
-        $mform->addElement('group', 'actionsgrp', get_string('withselectedusers'), $objs, ' ', false);
+        $mform->addElement(
+            'group',
+            'actionsgrp',
+            get_string('form:withselectedrecords', 'tool_orphanedrecords'),
+            $objs,
+            ' ',
+            false);
     }
 
     /**

@@ -63,7 +63,7 @@ if ($data = $bulkactions->get_data()) {
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'tool_orphanedrecords'));
-echo get_string('plugin:description', 'tool_orphanedrecords');
+echo get_string('report:description', 'tool_orphanedrecords');
 
 echo html_writer::start_div('', ['data-region' => 'report-list-wrapper']);
 

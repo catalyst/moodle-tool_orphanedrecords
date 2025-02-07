@@ -221,6 +221,38 @@ class orphaned_records extends base {
         ))
             ->add_joins($this->get_joins());
 
+        // Reason filter.
+        $filters[] = (new filter(
+            select::class,
+            'reason',
+            new lang_string('report:filter:reason', 'tool_orphanedrecords'),
+            $this->get_entity_name(),
+            "{$tablealias}.reason"
+        ))
+            ->add_joins($this->get_joins())
+            ->set_options([
+                orphanedrecords::REASON_FOREIGNKEY => new lang_string(
+                    'report:filter:reason:' . orphanedrecords::REASON_FOREIGNKEY,
+                    'tool_orphanedrecords'
+                ),
+                orphanedrecords::REASON_MISSINGINSTANCE => new lang_string(
+                    'report:filter:reason:' . orphanedrecords::REASON_MISSINGINSTANCE,
+                    'tool_orphanedrecords'
+                ),
+                orphanedrecords::REASON_MISSINGMODULE => new lang_string(
+                    'report:filter:reason:' . orphanedrecords::REASON_MISSINGMODULE,
+                    'tool_orphanedrecords'
+                ),
+                orphanedrecords::REASON_MISSINGCOURSE => new lang_string(
+                    'report:filter:reason:' . orphanedrecords::REASON_MISSINGCOURSE,
+                    'tool_orphanedrecords'
+                ),
+                orphanedrecords::REASON_MISSINGSECTION => new lang_string(
+                    'report:filter:reason:' . orphanedrecords::REASON_MISSINGSECTION,
+                    'tool_orphanedrecords'
+                ),
+            ]);
+
         // Status filter.
         $filters[] = (new filter(
             select::class,

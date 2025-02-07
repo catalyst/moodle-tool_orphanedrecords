@@ -58,13 +58,6 @@ class orphaned_records extends system_report {
         $entitymain = new \tool_orphanedrecords\reportbuilder\entities\orphaned_records();
         $entitymainalias = $entitymain->get_table_alias('tool_orphanedrecords');
 
-        $paramstatus = database::generate_param_name();
-
-        $this->add_base_condition_sql(
-            "{$entitymainalias}.status <> :$paramstatus",
-            [$paramstatus => orphanedrecords::STATUS_IGNORED]
-        );
-
         $this->set_main_table('tool_orphanedrecords', $entitymainalias);
         $this->add_entity($entitymain);
         $this->add_base_fields("{$entitymainalias}.id, {$entitymainalias}.status");
@@ -115,6 +108,7 @@ class orphaned_records extends system_report {
             'orphaned_records:orphanid',
             'orphaned_records:orphantable',
             'orphaned_records:status',
+            'orphaned_records:reason',
             'orphaned_records:timecreated',
             'orphaned_records:timemodified',
         ];
@@ -168,7 +162,7 @@ class orphaned_records extends system_report {
             false,
             new lang_string('form:ignore', 'tool_orphanedrecords')
         ))->add_callback(function(stdClass $row): bool {
-            return $row->status != orphanedrecords::STATUS_IGNORED;
+            return $row->status == orphanedrecords::STATUS_PENDING;
         }));
 
     }

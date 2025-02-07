@@ -26,6 +26,7 @@
 namespace tool_orphanedrecords\event;
 
 use core\event\base;
+use tool_orphanedrecords\orphanedrecords;
 
 /**
  * Record restored event.
@@ -37,6 +38,7 @@ class record_restored extends base {
      * @return void
      */
     protected function init(): void {
+        $this->data['objecttable'] = orphanedrecords::TABLE;
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_OTHER;
     }

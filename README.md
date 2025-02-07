@@ -1,4 +1,4 @@
-## Tool Orphaned Records
+## Development Tool Orphaned Records
 
 Description
 ------------------------
@@ -14,33 +14,40 @@ This is done through two main methods:
 2. Manual SQL to identify areas of the system where there should be links, but aren't. Currently the following
    checks are made:
 
-* For each activity module check the `mdl_course_modules` table for missing records.
-* Check each `mdl_course_modules` table record for missing module table records.
-* Check for `mdl_course_modules` records without matching `mdl_course` records.
-* Check for `mdl_course_modules` records without matching `mdl_course_sections` records.
-* Check for `mdl_course_sections` records without matching `mdl_course` records.
-* Check for `grade_items` records without matching `mdl_course_modules` records.
+* Check each activity table for missing `course_modules` records.
+  By looking at each module record to get the activity table name, the activity table (i.e `scorm`, `survey`)
+  is then joined on the `course_modules` table looking for where the `course_modules` record doesn't exist.
+* Check each `course_modules` table record for missing activity table records.
+  This is the inverse of the above. We join the `course_modules` table onto each of the activity tables
+  (i.e `scorm`, `survey`) looking for where teh activity table record is missing.
+* Check for `course_modules` records without matching `course` records.
+* Check for `course_modules` records without matching `course_sections` records.
+* Check for `course_sections` records without matching `course` records.
+* Check for `grade_items` records without matching `course_modules` records.
 
-The records that have been identified have their ID and table name stored in the table `mdl_tool_orphanedrecords`
+The records that have been identified have their ID and table name stored in the table `tool_orphanedrecords`
 with the status of PENDING.
 
-Log tables are excluded from the scheduled task. In addition a checkbox setting has been added called
-"Check `grade_grades_history` record". The reason for this is that on large sites this table can contain billions of records
-which can take dozens of hours to run.
+Log tables are excluded from the scheduled task.
 
-Once loaded into the plugins table they can be viewed with the report source 'Orphaned records'. From there each record can be
-actioned as follows (both singularly and individually):
+Report
+------
 
-* Ignore - This flags that the record is as it should be. For example, the `mdl_course` table contains a foreign key constraint 
+Once loaded into the plugins table they can be viewed with the report source 'Orphaned records' which is accessed via the
+Development tab of the admin settings called "Orphaned records report".
+
+From there each record can be actioned as follows (both singularly and individually):
+
+* Ignore - This flags that the record is as it should be. For example, the `course` table contains a foreign key constraint 
   on the field `originalcourseid`. This is populated when restoring/duplicating a course on the site. However this is not updated
   when the original course is removed. This however is an acceptable 'orphan' as it does not impact the site and is not used after the fact.
-* Delete - This will store a serialized snapshot of the row being deleted in the `mdl_tool_orphanedrecords` table and remove the original.
+* Delete - This will store a serialized snapshot of the row being deleted in the `tool_orphanedrecords` table and remove the original.
   The reason for storing the row is for the restore functionality.
 * Restore - This will recreate the originally deleted record back in the database. This can be used in instances where removal of a record
   has impacted the site negativly in some way.
 
-In addition to the report interface that allows for individual and bulk records to be deleted. Due to the possibilty of larger volumes of errors
-a CLI script has also bee added that allows for mass action on certain record groups.
+In addition to the report interface that allows for individual and bulk records to be deleted, and due to the possibility of larger volumes of errors,
+a CLI script has also been added that allows for mass action on certain record groups.
 The CLI script can be found under /admin/tool/orphanedrecords/cli/process.php and the --help argument will provide the following:
 
 ```
@@ -55,14 +62,24 @@ Options:
                         - restore
  -i, --orphanid         The id of the orphaned table record (i.e the course.id record).
                         This must be used in conjunction with 'orphantable'
- -r, --reason           The reason that the orphaned record was flagged. Available reasons are: 
+ -r, --reason           The reason that the orphaned record was flagged. Available reasons are:
                         - 0 (Foreign key violations);
-                        - 1 (Missing module instance record i.e mdl_scorm record);
+                        - 1 (Missing module instance record i.e scorm record);
                         - 2 (Missing course_module record );
                         - 3 (Missing course record);
                         - 4 (Missing section record);
  -t, --orphantable      The orphan table i.e course, course_module. Note, we do not store the prefix.
+ -d, --dryrun           Run the script without updating/deleting records.
+                        This is set to 1 by default so needs setting to 0 to execute.
 ```
+
+Settings 
+--------
+
+Settings are available under the Development tab of the admin settings called "Orphaned records general settings".
+
+"Check `grade_grades_history` record" - The reason for this is that on large sites this table can contain billions of records
+which can take dozens of hours to run.
 
 Contributing and support
 ------------------------

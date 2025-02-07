@@ -37,12 +37,14 @@ list($options, $unrecognized) = cli_get_params(
         'orphanid' => null,
         'reason' => null,
         'orphantable' => null,
+        'dryrun' => true,
     ], [
         'h' => 'help',
         'a' => 'action',
         'i' => 'orphanid',
         'r' => 'reason',
         't' => 'orphantable',
+        'd' => 'dryrun',
     ]
 );
 
@@ -65,11 +67,13 @@ Options:
                         This must be used in conjunction with 'orphantable'
  -r, --reason           The reason that the orphaned record was flagged. Available reasons are:
                         - 0 (Foreign key violations);
-                        - 1 (Missing module instance record i.e mdl_scorm record);
+                        - 1 (Missing module instance record i.e scorm record);
                         - 2 (Missing course_module record );
                         - 3 (Missing course record);
                         - 4 (Missing section record);
  -t, --orphantable      The orphan table i.e course, course_module. Note, we do not store the prefix.
+ -d, --dryrun           Run the script without updating/deleting records.
+                        This is set to 1 by default so needs setting to 0 to execute.
 EOT;
 
 // Extract the options as their own variables.
@@ -78,6 +82,7 @@ $action = $options['action'];
 $orphanid = $options['orphanid'];
 $orphantable = $options['orphantable'];
 $reason = $options['reason'];
+$dryrun = $options['dryrun'];
 
 // Display the help text.
 if ($help) {
@@ -101,6 +106,10 @@ if (!in_array($action, ['delete', 'ignore', 'restore'])) {
     cli_error("Invalid action $action");
 }
 
+if ($dryrun) {
+    cli_writeln("Dry run enabled");
+}
+
 $params = [];
 
 // Add the params based on CLI args.
@@ -120,7 +129,7 @@ if ($orphantable) {
 $records = $DB->get_records(orphanedrecords::TABLE, $params);
 $recordcount = count($records);
 $i = 0;
-if (cli_input("Are you sure you would like to {$action} {$recordcount} record(s) (y/n)?", 'n', ['y', 'n']) == 'y') {
+if (cli_input("Are you sure you would like attempt to {$action} {$recordcount} record(s) (y/n)?", 'n', ['y', 'n']) == 'y') {
     foreach ($records as $record) {
         if (
             $action == 'ignore' && $record->status == orphanedrecords::STATUS_IGNORED ||
@@ -135,7 +144,13 @@ if (cli_input("Are you sure you would like to {$action} {$recordcount} record(s)
             continue;
         }
         $i++;
-        orphanedrecords::process_record($record->id, $action);
+        if (!$dryrun) {
+            orphanedrecords::process_record($record->id, $action);
+        }
     }
-    cli_writeln("$i records out of a possible $recordcount actioned (see above for errors)");
+    if ($dryrun) {
+        cli_writeln("$i records out of a possible $recordcount will be actioned once --dryrun is disabled (see above for errors)");
+    } else {
+        cli_writeln("$i records out of a possible $recordcount actioned (see above for errors)");
+    }
 }

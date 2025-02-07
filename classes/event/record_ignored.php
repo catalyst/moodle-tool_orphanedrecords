@@ -26,6 +26,7 @@
 namespace tool_orphanedrecords\event;
 
 use core\event\base;
+use tool_orphanedrecords\orphanedrecords;
 
 /**
  * Record restored event.
@@ -37,6 +38,7 @@ class record_ignored extends base {
      * @return void
      */
     protected function init(): void {
+        $this->data['objecttable'] = orphanedrecords::TABLE;
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_OTHER;
     }
@@ -54,9 +56,22 @@ class record_ignored extends base {
      * @return string
      */
     public function get_description(): string {
+        $data = $this->get_data();
         return get_string(
             'event:record_ignored:description',
-            'tool_orphanedrecords'
+            'tool_orphanedrecords',
+            [
+                'id' => $data['objectid'],
+                'userid' => $data['userid'],
+                'reason' => get_string(
+                    'reason:' . $data['other']['reason'],
+                    'tool_orphanedrecords',
+                    [
+                        'reffields' => $data['other']['reffields'],
+                        'reftable' => $data['other']['reftable'],
+                    ]
+                )
+            ]
         );
     }
 }
