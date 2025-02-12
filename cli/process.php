@@ -94,7 +94,7 @@ if (!$orphantable) {
     cli_error("Missing orphan table - required");
 }
 
-if (!$orphanid && !$reason) {
+if (is_null($orphanid) && is_null($reason)) {
     cli_error("Missing orphan id or reason - required");
 }
 
@@ -126,31 +126,49 @@ if ($orphantable) {
     $params['orphantable'] = $orphantable;
 }
 
-$records = $DB->get_records(orphanedrecords::TABLE, $params);
-$recordcount = count($records);
-$i = 0;
+$recordcount = $DB->count_records(orphanedrecords::TABLE, $params);
+if (!$recordcount) {
+    cli_error("No orphaned record found");
+}
+
+raise_memory_limit(MEMORY_UNLIMITED);
+$records = $DB->get_recordset(orphanedrecords::TABLE, $params);
+$processedcount = 0;
+$counter = 0;
+$errors = [];
 if (cli_input("Are you sure you would like attempt to {$action} {$recordcount} record(s) (y/n)?", 'n', ['y', 'n']) == 'y') {
+    // Start the progress bar.
+    $progressbar = new progress_bar();
+    $progressbar->create();
     foreach ($records as $record) {
+        // Increment counter for progress bar.
+        $counter++;
+        $progressbar->update($counter, $recordcount, "Performing '$action'");
         if (
             $action == 'ignore' && $record->status == orphanedrecords::STATUS_IGNORED ||
             $action == 'delete' && $record->status == orphanedrecords::STATUS_DELETED ||
             $action == 'restore' && $record->status == orphanedrecords::STATUS_RESTORED
         ) {
-            cli_writeln("Record {$record->id} already {$action}d.");
+            $errors[] = "Record {$record->id} already {$action}d.";
             continue;
         }
         if ($action == 'restore' && $record->status != orphanedrecords::STATUS_DELETED) {
-            cli_writeln("Record {$record->id} cannot be restored.");
+            $errors[] = "Record {$record->id} cannot be restored.";
             continue;
         }
-        $i++;
+        // No errors, so process the record.
+        $processedcount++;
         if (!$dryrun) {
             orphanedrecords::process_record($record->id, $action);
         }
     }
     if ($dryrun) {
-        cli_writeln("$i records out of a possible $recordcount will be actioned once --dryrun is disabled (see above for errors)");
+        cli_writeln("$processedcount records out of a possible $recordcount will be actioned once --dryrun is disabled (see below for errors)");
     } else {
-        cli_writeln("$i records out of a possible $recordcount actioned (see above for errors)");
+        cli_writeln("$processedcount records out of a possible $recordcount actioned (see below for errors)");
+    }
+    foreach ($errors as $error) {
+        cli_writeln($error);
     }
 }
+$records->close();
