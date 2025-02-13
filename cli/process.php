@@ -37,6 +37,8 @@ list($options, $unrecognized) = cli_get_params(
         'orphanid' => null,
         'reason' => null,
         'orphantable' => null,
+        'reftable' => null,
+        'reffields' => null,
         'dryrun' => true,
     ], [
         'h' => 'help',
@@ -63,15 +65,17 @@ Options:
                         - ignore
                         - delete
                         - restore
- -i, --orphanid         The id of the orphaned table record (i.e the course.id record).
-                        This must be used in conjunction with 'orphantable'
  -r, --reason           The reason that the orphaned record was flagged. Available reasons are:
                         - 0 (Foreign key violations);
                         - 1 (Missing module instance record i.e scorm record);
                         - 2 (Missing course_module record );
                         - 3 (Missing course record);
                         - 4 (Missing section record);
+ -i, --orphanid         The id of the orphaned table record (i.e the course.id record).
+                        This must be used in conjunction with 'orphantable'
  -t, --orphantable      The orphan table i.e course, course_module. Note, we do not store the prefix.
+ --reftable             The forign field table i.e course for enrol.courseid
+ --reffields             The forign fields i.e courseid for enrol.courseid
  -d, --dryrun           Run the script without updating/deleting records.
                         This is set to 1 by default so needs setting to 0 to execute.
 EOT;
@@ -82,6 +86,8 @@ $action = $options['action'];
 $orphanid = $options['orphanid'];
 $orphantable = $options['orphantable'];
 $reason = $options['reason'];
+$reffields = $options['reffields'];
+$reftable = $options['reftable'];
 $dryrun = $options['dryrun'];
 
 // Display the help text.
@@ -113,7 +119,6 @@ if ($dryrun) {
 $params = [];
 
 // Add the params based on CLI args.
-
 if ($orphanid) {
     $params['orphanid'] = $orphanid;
 }
@@ -124,6 +129,14 @@ if ($reason) {
 
 if ($orphantable) {
     $params['orphantable'] = $orphantable;
+}
+
+if ($reffields) {
+    $params['reffields'] = $reffields;
+}
+
+if ($reftable) {
+    $params['reftable'] = $reftable;
 }
 
 $recordcount = $DB->count_records(orphanedrecords::TABLE, $params);
