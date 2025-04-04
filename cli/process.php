@@ -116,36 +116,59 @@ if ($dryrun) {
     cli_writeln("Dry run enabled");
 }
 
+$sql = "FROM {" . orphanedrecords::TABLE . "} WHERE 1 = 1";
 $params = [];
 
 // Add the params based on CLI args.
 if ($orphanid) {
     $params['orphanid'] = $orphanid;
+    $sql .= " AND orphanid = :orphanid";
 }
 
 if ($reason) {
     $params['reason'] = $reason;
+    $sql .= " AND reason = :reason";
 }
 
 if ($orphantable) {
     $params['orphantable'] = $orphantable;
+    $sql .= " AND orphantable = :orphantable";
 }
 
 if ($reffields) {
     $params['reffields'] = $reffields;
+    $sql .= " AND reffields = :reffields";
 }
 
 if ($reftable) {
     $params['reftable'] = $reftable;
+    $sql .= " AND reftable = :reftable";
 }
 
-$recordcount = $DB->count_records(orphanedrecords::TABLE, $params);
+switch ($action) {
+    case 'delete':
+        $sql .= " AND status != :status";
+        $params['status'] = orphanedrecords::STATUS_DELETED;
+        break;
+    case 'ignore':
+        $sql .= " AND status != :status";
+        $params['status'] = orphanedrecords::STATUS_IGNORED;
+        break;
+    case 'restore':
+        $sql .= " AND status != :status";
+        $params['status'] = orphanedrecords::STATUS_RESTORED;
+        break;
+    default:
+        break;
+}
+
+$recordcount = $DB->count_records_sql("SELECT count(1) " . $sql, $params);
 if (!$recordcount) {
     cli_error("No orphaned record found");
 }
 
 raise_memory_limit(MEMORY_UNLIMITED);
-$records = $DB->get_recordset(orphanedrecords::TABLE, $params);
+$records = $DB->get_recordset_sql("SELECT * " . $sql, $params);
 $processedcount = 0;
 $counter = 0;
 $errors = [];
@@ -157,14 +180,6 @@ if (cli_input("Are you sure you would like attempt to {$action} {$recordcount} r
         // Increment counter for progress bar.
         $counter++;
         $progressbar->update($counter, $recordcount, "Performing '$action'");
-        if (
-            $action == 'ignore' && $record->status == orphanedrecords::STATUS_IGNORED ||
-            $action == 'delete' && $record->status == orphanedrecords::STATUS_DELETED ||
-            $action == 'restore' && $record->status == orphanedrecords::STATUS_RESTORED
-        ) {
-            $errors[] = "Record {$record->id} already {$action}d.";
-            continue;
-        }
         if ($action == 'restore' && $record->status != orphanedrecords::STATUS_DELETED) {
             $errors[] = "Record {$record->id} cannot be restored.";
             continue;
