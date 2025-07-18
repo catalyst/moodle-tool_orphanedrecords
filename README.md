@@ -28,13 +28,11 @@ This is done through two main methods:
 The records that have been identified have their ID and table name stored in the table `tool_orphanedrecords`
 with the status of PENDING.
 
-Log tables are excluded from the scheduled task.
-
 Report
 ------
 
 Once loaded into the plugins table they can be viewed with the report source 'Orphaned records' which is accessed via the
-Development tab of the admin settings called "Orphaned records report".
+Reports tab of the admin settings called "Orphaned records report".
 
 From there each record can be actioned as follows (both singularly and individually):
 
@@ -80,8 +78,11 @@ Settings
 
 Settings are available under the Development tab of the admin settings called "Orphaned records general settings".
 
-"Check `grade_grades_history` record" - The reason for this is that on large sites this table can contain billions of records
-which can take dozens of hours to run.
+"Deleted lifetime" -> The length of time that the deleted backup data in `tool_orphanedrecords` will be stored 
+before being deleted permanently. This process is done via the `clear_deleted_records` task.
+
+"Skip tables" -> On large sites certain tables, such as "grade_grades_history", can take hours to run the discovery
+task on. As such tables selected here will be skipped from analysis.
 
 Contributing and support
 ------------------------

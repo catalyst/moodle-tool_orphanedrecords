@@ -56,28 +56,24 @@ class process_orphaned_records extends scheduled_task {
         $tablecount = count($tables);
 
         // Config checks.
-        $checkgradegradeshistory = get_config('tool_orphanedrecords', 'check_grade_grades_history');
+        $skippedtables = array_flip(explode(',', get_config('tool_orphanedrecords', 'skip_tables')));
 
         // Load all of the foreign checks that we need to do.
         foreach ($tables as $table) {
             $count++;
-            // Exclude log tables.
-            mtrace("-----");
-            if (str_contains($table->getName(), 'log')) {
-                mtrace("Skipping table '{$table->getName()}' ($count of $tablecount)");
-                continue;
-            }
-            // Exclude the grade_grades_history table if config specifies it.
-            if ($table->getName() == 'grade_grades_history' && !$checkgradegradeshistory) {
-                mtrace("Skipping table '{$table->getName()}' ($count of $tablecount)");
+
+            // Exclude the tables specified in the config.
+            if (isset($skippedtables[$table->getName()])) {
+                mtrace("Skipping table '{$table->getName()}' - set in config: $count of $tablecount");
                 continue;
             }
 
-            mtrace("Processing table '{$table->getName()}' ($count of $tablecount)");
+            mtrace("Processing table '{$table->getName()}': $count of $tablecount");
 
             // Check table exists.
             if (!$dbman->table_exists($table->getName())) {
-                return;
+                mtrace("Skipping table '{$table->getName()}' - does not exist: $count of $tablecount");
+                continue;
             }
 
             orphanedrecords::save_new_orphaned_records($table);

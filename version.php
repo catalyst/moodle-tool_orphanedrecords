@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025012800;
+$plugin->version   = 2025071702;
 $plugin->requires  = 2023100909;
 $plugin->component = 'tool_orphanedrecords';
-$plugin->supported = [401, 403];
+$plugin->supported = [401, 405];

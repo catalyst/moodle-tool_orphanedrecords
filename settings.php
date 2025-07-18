@@ -27,13 +27,14 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
     $ADMIN->add(
-        'development',
+        'reports',
         new admin_externalpage(
             'toolorphanedrecords',
             get_string('settings:report', 'tool_orphanedrecords'),
             "$CFG->wwwroot/$CFG->admin/tool/orphanedrecords/index.php"
         )
     );
+
     $settings = new admin_settingpage('tool_orphanedrecords_settings', get_string('settings:category', 'tool_orphanedrecords'));
     $ADMIN->add('development', $settings);
     $settings->add(
@@ -44,12 +45,26 @@ if ($hassiteconfig) {
         )
     );
 
+    $tables = $DB->get_tables();
+    ksort($tables);
+
     $settings->add(
-        new admin_setting_configcheckbox(
-            'tool_orphanedrecords/check_grade_grades_history',
-            new lang_string('settings:check_grade_grades_history', 'tool_orphanedrecords'),
-            new lang_string('settings:check_grade_grades_history:desc', 'tool_orphanedrecords'),
-            ''
+        new admin_setting_configmultiselect(
+            'tool_orphanedrecords/skip_tables',
+            new lang_string('settings:skip_tables', 'tool_orphanedrecords'),
+            new lang_string('settings:skip_tables:desc', 'tool_orphanedrecords'),
+            ['grade_grades_history', 'logstore_standard_log'],
+            $tables
         )
     );
+
+    $settings->add(
+        new admin_setting_configduration(
+            'tool_orphanedrecords/deleted_lifetime',
+            new lang_string('settings:deleted_lifetime', 'tool_orphanedrecords'),
+            new lang_string('settings:deleted_lifetime:desc', 'tool_orphanedrecords'),
+            30 * 86400
+        )
+    );
+
 }
