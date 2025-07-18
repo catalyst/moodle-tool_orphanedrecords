@@ -36,4 +36,14 @@ $tasks = [
         'month' => '*',
         'disabled' => true,
     ],
+    [
+        'classname' => 'tool_orphanedrecords\task\clear_deleted_records',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*',
+        'disabled' => true,
+    ],
 ];

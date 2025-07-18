@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Record restored event.
+ * Clear deleted events.
  *
  * @package   tool_orphanedrecords
  * @author    Simon Thornett <simon.thornett@catalyst-eu.net>
@@ -26,13 +26,12 @@
 namespace tool_orphanedrecords\task;
 
 use core\task\scheduled_task;
-use stdClass;
 use tool_orphanedrecords\orphanedrecords;
 
 /**
- * Record restored event.
+ * Clear deleted events past the defined config window.
  */
-class process_orphaned_records extends scheduled_task {
+class clear_deleted_records extends scheduled_task {
 
     /**
      * Return the task's name as shown in admin screens.
@@ -40,7 +39,7 @@ class process_orphaned_records extends scheduled_task {
      * @return string
      */
     public function get_name(): string {
-        return get_string('task:process_orphaned_records', 'tool_orphanedrecords');
+        return get_string('task:clear_deleted_records', 'tool_orphanedrecords');
     }
 
     /**
@@ -51,34 +50,28 @@ class process_orphaned_records extends scheduled_task {
     public function execute(): void {
         global $DB;
 
-        $dbman = $DB->get_manager();
-        $schema = $dbman->get_install_xml_schema();
-        $tables = $schema->getTables();
-        $count = 0;
-        $tablecount = count($tables);
+        $deletedlifetime = get_config('tool_orphanedrecords', 'deleted_lifetime');
 
-        // Config checks.
-        $skippedtables = array_flip(explode(',', get_config('tool_orphanedrecords', 'skip_tables')));
+        $params = [
+            'deletedlifetime' => time() - $deletedlifetime,
+            'status' => orphanedrecords::STATUS_DELETED,
+        ];
+        $select = 'status = :status AND timemodified <= :deletedlifetime';
 
-        // Load all of the foreign checks that we need to do.
-        foreach ($tables as $table) {
-            $count++;
+        $count = $DB->count_records_select(
+            orphanedrecords::TABLE,
+            $select,
+            $params
+        );
 
-            // Exclude the tables specified in the config.
-            if (isset($skippedtables[$table->getName()])) {
-                mtrace("Skipping table '{$table->getName()}' - set in config: $count of $tablecount");
-                continue;
-            }
+        mtrace("Deleting $count records.");
 
-            mtrace("Processing table '{$table->getName()}': $count of $tablecount");
-
-            // Check table exists.
-            if (!$dbman->table_exists($table->getName())) {
-                mtrace("Skipping table '{$table->getName()}' - does not exist: $count of $tablecount");
-                continue;
-            }
-
-            orphanedrecords::save_new_orphaned_records($table);
+        if ($count > 0) {
+            $DB->delete_records_select(
+                orphanedrecords::TABLE,
+                $select,
+                $params
+            );
         }
     }
 }

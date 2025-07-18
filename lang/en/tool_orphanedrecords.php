@@ -77,13 +77,16 @@ $string['report:filter:timemodified'] = 'Time modified';
 $string['report:name'] = 'Orphaned records';
 $string['settings:category'] = 'Orphaned records general settings';
 $string['settings:generalheader'] = 'General settings';
-$string['settings:check_grade_grades_history'] = 'Check "grade_grades_history" records';
-$string['settings:check_grade_grades_history:desc'] = 'On large sites the "grade_grades_history" table can take upwards of serveral hours to run.
-Disabling this can improve the runtime of the scheduled task.';
+$string['settings:deleted_lifetime'] = 'Deleted lifetime';
+$string['settings:deleted_lifetime:desc'] = 'The length of time that the deleted backup data in `tool_orphanedrecords` will be stored before being deleted permanently.';
+$string['settings:skip_tables'] = 'Skip tables';
+$string['settings:skip_tables:desc'] = 'On large sites certain tables, such as "grade_grades_history", can take hours to run.
+Tables selected here will be skipped from analysis.';
 $string['settings:report'] = 'Orphaned records report';
 $string['status:0'] = 'Pending action';
 $string['status:1'] = 'Ignored';
 $string['status:2'] = 'Deleted';
 $string['status:3'] = 'Restored';
+$string['task:clear_deleted_records'] = 'Clear deleted records';
 $string['task:process_orphaned_records'] = 'Discover orphaned records';
 
