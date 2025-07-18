@@ -44,6 +44,8 @@ class clear_deleted_records extends scheduled_task {
 
     /**
      * Execute the task
+     *
+     * @return void
      */
     public function execute(): void {
         global $DB;
